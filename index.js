@@ -47,10 +47,19 @@ app.get("/", (req, res) => {
 
 app.get("/getAllMessage", async (req, res) => {
   console.log("Inside /getAllMessage route");
-  //   let data = await chatModel.find();
-  let data = await chatModel.find().select("-_id -__v");
+  console.log("Request Query :: ", req.query.limit);
+  const limitParam = parseInt(req.query.limit, 10);
+  const limit = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 10;
+
+  const data = await chatModel
+    .find()
+    .sort({ timestamp: -1 })
+    .limit(limit)
+    .select("-_id -__v");
   console.log("Sent Data Length ::", data.length);
-  res.send(data);
+  let actualData = data.toReversed()
+  console.log("Sent Data Length ::", actualData);
+  res.send(actualData);
 });
 
 app.post("/addMessage", async (req, res) => {
