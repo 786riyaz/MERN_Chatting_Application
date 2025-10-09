@@ -13,6 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5174", // your local React app
+      "http://localhost:5173", // your local React app
       "https://react-js-psi-beryl.vercel.app" // your deployed frontend (if applicable)
     ],
     methods: ["GET", "POST"],
