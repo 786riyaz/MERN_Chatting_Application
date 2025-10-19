@@ -1,5 +1,3 @@
-// https://mern-chatting-application.vercel.app/getAllMessage
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -8,13 +6,12 @@ require("dotenv").config();
 
 const app = express();
 
-// ✅ Enable CORS before defining routes
+// ✅ Enabling CORS before defining routes
 app.use(
   cors({
     origin: [
-      "http://localhost:5174", // your local React app
-      "http://localhost:5173", // your local React app
-      "https://react-js-psi-beryl.vercel.app" // your deployed frontend (if applicable)
+      "http://localhost:5173", // local React app
+      "https://react-js-psi-beryl.vercel.app", // deployed frontend
     ],
     methods: ["GET", "POST"],
     credentials: true
@@ -26,10 +23,23 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 
 // ✅ Connect to MongoDB
+// debug: show whether DB_URL is available
+// console.log("DB_URL present:", !!process.env.DB_URL);
+
+// improved mongoose connect with options and explicit error logging
 mongoose
-  .connect(process.env.DB_URL)
+  .connect(process.env.DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    // other options if needed
+  })
   .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Error connecting to MongoDB", err));
+  .catch((err) => {
+    console.error("Error connecting to MongoDB:", err.message || err);
+    // helpful: print full error object to debug in local only
+    console.error(err);
+    process.exit(1); // fail fast in dev so you see the error
+  });
 
 // ✅ Schema and Model
 const chatSchema = new mongoose.Schema({
@@ -47,7 +57,7 @@ app.get("/", (req, res) => {
 
 app.get("/getAllMessage", async (req, res) => {
   console.log("Inside /getAllMessage route");
-  console.log("Request Query :: ", req.query.limit);
+  // console.log("Request Query :: ", req.query.limit);
   const limitParam = parseInt(req.query.limit, 10);
   const limit = Number.isFinite(limitParam) && limitParam > 0 ? limitParam : 10;
 
@@ -56,9 +66,9 @@ app.get("/getAllMessage", async (req, res) => {
     .sort({ timestamp: -1 })
     .limit(limit)
     .select("-_id -__v");
-  console.log("Sent Data Length ::", data.length);
+  // console.log("Sent Data Length ::", data.length);
   let actualData = data.toReversed()
-  console.log("Sent Data Length ::", actualData);
+  // console.log("Sent Data Length ::", actualData);
   res.send(actualData);
 });
 
@@ -72,6 +82,4 @@ app.post("/addMessage", async (req, res) => {
 });
 
 // ✅ Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server is running on port ${PORT}`); });
