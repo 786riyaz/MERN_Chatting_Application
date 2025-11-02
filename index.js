@@ -12,6 +12,7 @@ app.use(
     origin: [
       "http://localhost:5173", // local React app
       "https://react-js-psi-beryl.vercel.app", // deployed frontend
+      "https://pfx9d576-5173.inc1.devtunnels.ms",
     ],
     methods: ["GET", "POST"],
     credentials: true
